@@ -19,5 +19,8 @@ class DataBase:
     def insertDataFrame(self, df, table_name):
         df.to_sql(name=table_name, con=self.engine, if_exists='append', index=False)
 
+    def updateTable(self, df, table_name):
+        df.to_sql(name=table_name, con=self.engine, if_exists='replace', index=False)
+
     def exportData(self, table_name):
         return pd.read_sql_table(table_name, self.conn)
