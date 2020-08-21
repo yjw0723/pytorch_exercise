@@ -62,6 +62,10 @@ for epoch in range(TOTAL_EPOCH):
         print(f'iteration:{i}/{len(dataloader)}|loss:{round(loss.item(),3)}')
 
     train_avg_loss.append(round(np.mean(loss_list),3))
+    print(f'EPOCH:{epoch}/{TOTAL_EPOCH}|Average Loss:{round(np.mean(loss_list),3)}')
+
+PATH = './fashion_multilabel_classification.pth'
+torch.save(model.state_dict(), PATH)
 
 df = pd.DataFrame({'epoch': list(range(TOTAL_EPOCH)), 'train_accuracy': train_avg_loss},
                   columns=['epoch', 'train_loss'])
