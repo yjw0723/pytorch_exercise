@@ -2,3 +2,7 @@ database_attribute.py
 loss.csv
 loss.png
 fashion_multilabel_classification.pth
+redness.pth
+redness_accuracy.png
+redness_loss.csv
+redness_loss.png
