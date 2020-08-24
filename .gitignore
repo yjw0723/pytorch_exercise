@@ -1,1 +1,4 @@
 database_attribute.py
+loss.csv
+loss.png
+fashion_multilabel_classification.pth
