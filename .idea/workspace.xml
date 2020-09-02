@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e05af38-24ae-4ea4-9b4c-67716ae2dcbd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/resize_imgs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/multi-label_classificaiton_example.py" beforeDir="false" afterPath="$PROJECT_DIR$/multi-label_classificaiton_example.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pytorch_ops.py" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch_ops.py" afterDir="false" />
@@ -154,9 +151,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.multi-label_classificaiton_example" />
+        <item itemvalue="Python.pytorch_ops" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.resize_imgs" />
-        <item itemvalue="Python.pytorch_ops" />
         <item itemvalue="Python.image_classification_example" />
       </list>
     </recent_temporary>

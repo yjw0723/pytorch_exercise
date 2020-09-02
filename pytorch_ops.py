@@ -16,19 +16,37 @@ import shutil
 import warnings
 warnings.filterwarnings("ignore")
 
-class readDataset(Dataset):
-    """dataset."""
-
-    def __init__(self, csv_file_path, root_dir, disciriminator, transform=None):
+class devideDataset:
+    def __init__(self, csv_path, train_ratio):
         """
         Args:
-            csv_file_path (string): csv 파일의 경로
-            root_dir (string): 모든 이미지가 존재하는 디렉토리 경로
+            :param csv_path: label정보가 있는 csv 파일의 경로(string)
+            :param train_ratio: 전체 데이터 셋 중에서 학습 데이터가 차지할 비중(float(ex:0.7))
+        """
+        self.df = pd.read_csv(csv_path, engine='python')
+        self.df = self.df.sample(frac=1).reset_index(drop=True)
+        self.train_ratio = train_ratio
+        self.devide()
+
+    def devide(self):
+        data_length = len(self.df.iloc[:,0])
+        train_length = int(data_length * self.train_ratio)
+        self.train_df = self.df.iloc[:train_length,:]
+        self.test_df = self.df.iloc[train_length:,:]
+
+
+
+class readDataset(Dataset):
+    def __init__(self, data, img_dir, disciriminator, transform=None):
+        """
+        Args:
+            data (string): pandas dataframe
+            img_dir (string): 모든 이미지가 존재하는 디렉토리 경로
             disciriminator: label의 구분자(만약 하나의 라벨이 'black_jeans'라면 discriminator는 '_'를 의미함)
             transform (callable, optional): 샘플에 적용될 Optional transform
         """
-        self.df = pd.read_csv(csv_file_path)
-        self.root_dir = root_dir
+        self.df = data
+        self.root_dir = img_dir
         self.transform = transform
         self.discriminator = disciriminator
         self.MLB = self.returnMLB()
