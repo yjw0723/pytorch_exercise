@@ -3,6 +3,8 @@ from torchvision import transforms, models
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+import torch.nn.functional as F
+import cv2
 import matplotlib.pyplot as plt #모형 학습시 accuracy와 loss를 저장하기 위한 라이브러리입니다.
 import torch.backends.cudnn as cudnn
 
@@ -29,49 +31,79 @@ test_dataset = readDataset(data=test_df,
 
 TRAIN_DATA_LENGTH = len(train_dataset.df.iloc[:,0])
 TEST_DATA_LENGTH = len(test_dataset.df.iloc[:,0])
+CLASS_LENGTH = len(train_dataset.MLB.classes_)
 
-train_dataloader = DataLoader(train_dataset, batch_size=192, shuffle=True, num_workers=0)
-test_dataloader = DataLoader(test_dataset, batch_size=192, shuffle=True, num_workers=0)
+train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0)
+test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True, num_workers=0)
 
-model = models.resnet50(pretrained=True)
-for param in model.parameters():
-    param.requires_grad = False
+resnet_50 = models.resnet50(pretrained=True)
 
-model.fc = nn.Sequential(nn.Linear(2048, 512),
-                         nn.ReLU(),
-                         nn.Dropout(0.2),
-                         nn.Linear(512, 6))
-# criterion = WBCEloss
-# optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
-# model.cuda()
-# m = nn.Sigmoid()
+modules=list(resnet_50.children())[:-2]
+resnet_50=nn.Sequential(*modules)
+for p in resnet_50.parameters():
+    p.requires_grad = False
+
+class Net(nn.Module):
+    def __init__(self, pretrained_model, class_length):
+        super(Net, self).__init__()
+        self.class_length = class_length
+        self.feature = pretrained_model
+        self.GAP = nn.AdaptiveAvgPool2d(output_size=(1,1))
+        self.fc = nn.Linear(2048, class_length)
+
+    def forward(self, x):
+        print(x.size())
+        x = self.feature(x)
+        x = self.GAP(x)
+        x = x.view(-1,2048)
+        x = self.fc(x)
+        x = F.sigmoid(x)
+        return x
+
+    def returnCAM(self, x):
+        feature = self.feature(x)
+        batch, channel, height, width = feature.size()
+        print(feature.size())
+        feature = self.feature(x).cpu().data.numpy()
+        params = np.squeeze(list(self.parameters())[-2].cpu().data.numpy())
+        output = []
+        # for c1 in range(self.class_length):
+        #     cam = params[i].dot(feature.reshape(channel,height*width))
+        #     cam = cam.reshape(height, width)
+        #     cam = cam - np.min(cam)
+        #     cam_img = cam / np.max(cam)
+        #     cam_img = np.uint8(255 * cam_img)
+        #     output.append(cv2.resize(cam_img, (224,224)))
+        # output = torch.from_numpy(np.array(output)).float().cuda()
+        # print(output.size())
+        # return output
+
+model = Net(resnet_50, CLASS_LENGTH)
+model.cuda()
+criterion = WBCEloss
+optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
+
+
+train_avg_loss = []
+train_avg_acc = []
+test_avg_loss = []
+test_avg_acc = []
+
+for epoch in range(TOTAL_EPOCH):
+    with torch.autograd.detect_anomaly():
+        loss_list = []
+        accuracy = 0
+        for i, data in enumerate(train_dataloader):
+            inputs, labels, weight_p, weight_n = data['image'], data['label'], data['weight_p'], data['weight_n']
+            inputs = torch.where(torch.isnan(inputs), torch.zeros_like(inputs), inputs)
+            inputs = inputs.type(torch.cuda.FloatTensor)
+            labels = labels.type(torch.cuda.FloatTensor)
+            weight_p = weight_p.type(torch.cuda.FloatTensor)
+            weight_n = weight_n.type(torch.cuda.FloatTensor)
+            inputs, labels, weight_p, weight_n = inputs.cuda(), labels.cuda(), weight_p.cuda(), weight_n.cuda()
+            test = model.returnCAM(inputs)
 #
-#
-# train_avg_loss = []
-# train_avg_acc = []
-# test_avg_loss = []
-# test_avg_acc = []
-#
-# for epoch in range(TOTAL_EPOCH):
-#     with torch.autograd.detect_anomaly():
-#         loss_list = []
-#         accuracy = 0
-#         for i, data in enumerate(train_dataloader, 0):
-#             # [inputs, labels]의 목록인 data로부터 입력을 받은 후;
-#             inputs, labels, weight_p, weight_n = data['image'], data['label'], data['weight_p'], data['weight_n']
-#             inputs = torch.where(torch.isnan(inputs), torch.zeros_like(inputs), inputs)
-#             inputs = inputs.type(torch.cuda.FloatTensor)
-#             labels = labels.type(torch.cuda.FloatTensor)
-#             weight_p = weight_p.type(torch.cuda.FloatTensor)
-#             weight_n = weight_n.type(torch.cuda.FloatTensor)
-#             inputs, labels, weight_p, weight_n = inputs.cuda(), labels.cuda(), weight_p.cuda(), weight_n.cuda()
-#
-#             # 변화도(Gradient) 매개변수를 0으로 만들고
-#             optimizer.zero_grad()
-#
-#             # 순전파 + 역전파 + 최적화를 한 후
 #             outputs = model(inputs)
-#             outputs = m(outputs)
 #             loss = criterion(labels, outputs, weight_p, weight_n)
 #             loss.backward()
 #             optimizer.step()
@@ -89,7 +121,7 @@ model.fc = nn.Sequential(nn.Linear(2048, 512),
 #
 #         train_avg_loss.append(np.mean(loss_list))
 #         train_avg_acc.append(accuracy / TRAIN_DATA_LENGTH)
-#         print(f'EPOCH:{epoch}/{TOTAL_EPOCH}|Train Average Loss:{np.mean(loss_list)}|Train Accuracy:{accuracy/TRAIN_DATA_LENGTH}')
+#         print(f'EPOCH:{epoch}/{TOTAL_EPOCH}|Train Average Loss:{np.mean(loss_list)}|Train Accuracy:{accuracy / TRAIN_DATA_LENGTH}')
 #
 #         loss_list = []
 #         accuracy = 0
@@ -106,7 +138,6 @@ model.fc = nn.Sequential(nn.Linear(2048, 512),
 #
 #             # 순전파 + 역전파 + 최적화를 한 후
 #             outputs = model(inputs)
-#             outputs = m(outputs)
 #             loss = criterion(labels, outputs, weight_p, weight_n)
 #             outputs = torch.round(outputs)
 #             outputs = outputs.detach().cpu().numpy().tolist()
@@ -120,13 +151,13 @@ model.fc = nn.Sequential(nn.Linear(2048, 512),
 #
 #         test_avg_loss.append(np.mean(loss_list))
 #         test_avg_acc.append(accuracy / TEST_DATA_LENGTH)
-#         print(f'EPOCH:{epoch}/{TOTAL_EPOCH}|Test Average Loss:{np.mean(loss_list)}|Test Accuracy:{accuracy/TEST_DATA_LENGTH}')
+#         print(f'EPOCH:{epoch}/{TOTAL_EPOCH}|Test Average Loss:{np.mean(loss_list)}|Test Accuracy:{accuracy / TEST_DATA_LENGTH}')
 #
 # PATH = f'./fashion_multilabel_classification_with_{SAVE_NAME}.pth'
 # torch.save(model.state_dict(), PATH)
 #
-# df = pd.DataFrame({'epoch': list(range(TOTAL_EPOCH)), 'train_loss': train_avg_loss, 'train_acc':train_avg_acc,
-#                    'test_loss':test_avg_loss, 'test_acc':test_avg_acc},
+# df = pd.DataFrame({'epoch': list(range(TOTAL_EPOCH)), 'train_loss': train_avg_loss, 'train_acc': train_avg_acc,
+#                    'test_loss': test_avg_loss, 'test_acc': test_avg_acc},
 #                   columns=['epoch', 'train_loss', 'train_acc', 'test_loss', 'test_acc'])
 #
 # df_save_path = f'./{SAVE_NAME}.csv'
