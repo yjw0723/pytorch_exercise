@@ -104,11 +104,11 @@ class GlobalNet(nn.Module):
 
     def gOutput(self, x):
         outputs, poolings, features = self.forward(x)
-        batch = features.size()[0]
+        batch, _, height, width = x.size()
         attention = torch.max(features, 1).values.cpu().data.numpy()
         attentions = []
         for b in range(batch):
-            output = cv2.resize(attention[b], (224,224))
+            output = cv2.resize(attention[b], (height,width))
             output = output - np.min(output)
             attentions.append(output / np.max(output))
         attentions = torch.from_numpy(np.array(attentions)).float().cuda()
