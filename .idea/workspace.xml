@@ -4,6 +4,7 @@
     <list default="true" id="2e05af38-24ae-4ea4-9b4c-67716ae2dcbd" name="Default Changelist" comment="">
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/pytorch_exercise.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pytorch_exercise.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -18,12 +19,21 @@
       <change afterPath="$PROJECT_DIR$/train_validation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
 >>>>>>> Stashed changes
+=======
+      <change afterPath="$PROJECT_DIR$/data_loader.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nets.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/train_validation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+>>>>>>> Stashed changes
       <change beforePath="$PROJECT_DIR$/cam.py" beforeDir="false" afterPath="$PROJECT_DIR$/cam.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/code_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/multi-label_classificaiton_example.py" beforeDir="false" afterPath="$PROJECT_DIR$/multi-label_classificaiton_example.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pytorch_ops.py" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch_ops.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -50,6 +60,7 @@
           <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
             <file pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/data_loader.py">
+<<<<<<< Updated upstream
                 <provider selected="true" editor-type-id="text-editor">
                   <state relative-caret-position="2624">
                     <caret line="228" column="63" selection-start-line="228" selection-start-column="63" selection-end-line="228" selection-end-column="63" />
@@ -63,6 +74,21 @@
             <file pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/cam.py">
                 <provider selected="true" editor-type-id="text-editor">
+=======
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="2624">
+                    <caret line="228" column="63" selection-start-line="228" selection-start-column="63" selection-end-line="228" selection-end-column="63" />
+                    <folding>
+                      <element signature="e#0#47#0" expanded="true" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+            <file pinned="false" current-in-tab="false">
+              <entry file="file://$PROJECT_DIR$/cam.py">
+                <provider selected="true" editor-type-id="text-editor">
+>>>>>>> Stashed changes
                   <state relative-caret-position="588">
                     <caret line="27" column="56" selection-start-line="27" selection-start-column="56" selection-end-line="27" selection-end-column="56" />
                     <folding>
@@ -118,6 +144,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code_test.py">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="120">
               <caret line="30" column="22" lean-forward="true" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
@@ -145,6 +172,23 @@
             <state relative-caret-position="120">
               <caret line="30" column="22" lean-forward="true" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
 >>>>>>> Stashed changes
+=======
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="120">
+              <caret line="30" column="22" lean-forward="true" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
+>>>>>>> Stashed changes
+              <folding>
+                <element signature="e#0#47#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pytorch_ops.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="400">
+              <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
               </folding>
@@ -170,6 +214,9 @@
             <state relative-caret-position="448">
               <caret line="46" column="16" selection-start-line="46" selection-start-column="16" selection-end-line="46" selection-end-column="16" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -182,6 +229,7 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/image_classification_example.py">
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
           <provider selected="true" editor-type-id="text-editor">
@@ -203,6 +251,8 @@
         <entry file="file://$PROJECT_DIR$/classification_tutorial.py">
           <provider selected="true" editor-type-id="text-editor">
 =======
+=======
+>>>>>>> Stashed changes
           <provider selected="true" editor-type-id="text-editor">
             <state>
               <folding>
@@ -215,12 +265,18 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/classification_tutorial.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
             <state relative-caret-position="392">
               <caret line="14" column="66" selection-start-line="14" selection-start-column="66" selection-end-line="14" selection-end-column="66" />
               <folding>
                 <element signature="e#24#36#0" expanded="true" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -305,9 +361,12 @@
   </component>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   <component name="RunManager" selected="Python.image_classification_example">
     <configuration name="code_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
   <component name="RunManager" selected="Python.code_test">
@@ -377,7 +436,11 @@
     </configuration>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+    <configuration name="nets" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> Stashed changes
 =======
     <configuration name="nets" type="PythonConfigurationType" factoryName="Python" temporary="true">
 >>>>>>> Stashed changes
@@ -397,7 +460,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
+=======
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/nets.py" />
+>>>>>>> Stashed changes
 =======
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/nets.py" />
 >>>>>>> Stashed changes
@@ -437,6 +504,7 @@
       <list>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <item itemvalue="Python.image_classification_example" />
         <item itemvalue="Python.code_test" />
         <item itemvalue="Python.test" />
@@ -447,11 +515,17 @@
 =======
         <item itemvalue="Python.code_test" />
 >>>>>>> Stashed changes
+=======
+        <item itemvalue="Python.code_test" />
+>>>>>>> Stashed changes
         <item itemvalue="Python.test" />
         <item itemvalue="Python.nets" />
         <item itemvalue="Python.cam" />
         <item itemvalue="Python.multi-label_classificaiton_example" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -485,7 +559,11 @@
     <layout>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24973656" />
+=======
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11959958" />
+>>>>>>> Stashed changes
 =======
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11959958" />
 >>>>>>> Stashed changes
@@ -496,6 +574,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
       <window_info anchor="bottom" id="Run" order="2" />
@@ -517,11 +596,20 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
 >>>>>>> Stashed changes
+=======
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49947312" visible="true" weight="0.329718" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+>>>>>>> Stashed changes
       <window_info anchor="bottom" id="TODO" order="6" weight="0.329718" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50052685" side_tool="true" weight="0.329718" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -567,11 +655,14 @@
   <component name="editorHistoryManager">
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/db_ops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="308">
           <caret line="11" column="27" selection-start-line="11" selection-start-column="27" selection-end-line="11" selection-end-column="27" />
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     <entry file="file://$PROJECT_DIR$/FASHION_WBCEloss_only_resize_10/loss.png">
@@ -582,10 +673,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cam.py">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="588">
           <caret line="27" column="56" selection-start-line="27" selection-start-column="56" selection-end-line="27" selection-end-column="56" />
 =======
+=======
+>>>>>>> Stashed changes
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="588">
           <caret line="27" column="56" selection-start-line="27" selection-start-column="56" selection-end-line="27" selection-end-column="56" />
@@ -609,6 +703,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="448">
           <caret line="46" column="16" selection-start-line="46" selection-start-column="16" selection-end-line="46" selection-end-column="16" />
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
           <folding>
             <element signature="e#0#25#0" expanded="true" />
@@ -616,6 +713,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/data_loader.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -647,6 +745,9 @@
 =======
     <entry file="file://$PROJECT_DIR$/image_classification_example.py">
 >>>>>>> Stashed changes
+=======
+    <entry file="file://$PROJECT_DIR$/image_classification_example.py">
+>>>>>>> Stashed changes
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <folding>
@@ -670,6 +771,9 @@
         <state relative-caret-position="456">
           <caret line="41" column="38" selection-start-line="41" selection-start-column="38" selection-end-line="41" selection-end-column="38" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -681,6 +785,7 @@
     </entry>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/multi-label_classificaiton_example.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="588">
@@ -688,6 +793,10 @@
 =======
     <entry file="file://$PROJECT_DIR$/nets.py">
       <provider selected="true" editor-type-id="text-editor">
+=======
+    <entry file="file://$PROJECT_DIR$/nets.py">
+      <provider selected="true" editor-type-id="text-editor">
+>>>>>>> Stashed changes
 =======
     <entry file="file://$PROJECT_DIR$/nets.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -705,6 +814,9 @@
         <state relative-caret-position="120">
           <caret line="30" column="22" lean-forward="true" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
