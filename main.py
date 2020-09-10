@@ -5,10 +5,10 @@ import warnings
 warnings.filterwarnings("ignore")
 
 CSV_PATH = 'D:/data/4667_7773_bundle_archive/sample/sample_labels.csv'
-IMG_DIR = 'D:/data/4667_7773_bundle_archive/sample/images'
+IMG_DIR = 'D:/data/4667_7773_bundle_archive/sample/images_512_resized'
 SAVE_NAME = 'FASHION_GlobalNet'
 TOTAL_EPOCH = 100
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 TRAIN_RATIO = 0.7
 LR = 0.0005
 DISCRIMINATOR = '|'
