@@ -6,3 +6,6 @@ redness.pth
 redness_accuracy.png
 redness_loss.csv
 redness_loss.png
+*.png
+*.csv
+*.pth
