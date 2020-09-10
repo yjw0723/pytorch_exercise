@@ -1,151 +1,106 @@
-from __future__ import print_function, division
 import os
-import torch
 import pandas as pd
-from skimage import io, transform
-import numpy as np
-from torch.utils.data import Dataset
-from torchvision import transforms, utils
-from sklearn.preprocessing import MultiLabelBinarizer
-import cv2
-from tqdm import tqdm
-import shutil
+import matplotlib.pyplot as plt
 
-# 경고 메시지 무시하기
-import warnings
-warnings.filterwarnings("ignore")
+import torch
+from torch.utils.data import DataLoader
 
-class readDataset(Dataset):
-    """dataset."""
+class returnLossAndAcc:
+    def __init__(self, dataset, batch_size, shuffle=True):
+        self.DATASET = dataset
+        self.DATA_LENGTH = len(self.DATASET.df.iloc[:,0])
+        self.DATA_LOADER = DataLoader(self.DATASET, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+        self.G_AVG_LOSS = []
+        self.G_AVG_ACC = []
+        self.L_AVG_LOSS = []
+        self.L_AVG_ACC = []
+        self.F_AVG_LOSS = []
+        self.F_AVG_ACC = []
 
-    def __init__(self, csv_file_path, root_dir, disciriminator, transform=None):
-        """
-        Args:
-            csv_file_path (string): csv 파일의 경로
-            root_dir (string): 모든 이미지가 존재하는 디렉토리 경로
-            disciriminator: label의 구분자(만약 하나의 라벨이 'black_jeans'라면 discriminator는 '_'를 의미함)
-            transform (callable, optional): 샘플에 적용될 Optional transform
-        """
-        self.df = pd.read_csv(csv_file_path)
-        self.root_dir = root_dir
-        self.transform = transform
-        self.discriminator = disciriminator
-        self.MLB = self.returnMLB()
-        self.updateDf()
+    def appendLoss(self,idx, loss_list, current_loss, name):
+        loss_list.append(current_loss.item())
+        print(f'iteration:{idx}/{len(self.DATA_LOADER)}|{name}_loss:{current_loss.item()}')
 
-    def updateDf(self):
-        label_list = self.df.iloc[:, 1].tolist()
-        label_list = [tuple(label.split(self.discriminator)) for label in label_list]
-        self.df.iloc[:,1] = label_list
+    def returnAcc(self, outputs, labels, accuracy):
+        outputs = torch.round(outputs)
+        outputs = outputs.detach().cpu().numpy().tolist()
+        labels = labels.cpu().numpy().tolist()
+        for label, output in zip(labels, outputs):
+            if label == output:
+                accuracy += 1.
+        return accuracy
 
-    def returnMLB(self):
-        label_list = self.df.iloc[:, 1].tolist()
-        label_list = np.unique(np.array(label_list))
-        multilabel_list = [label.split(self.discriminator) for label in label_list]
-        multilabel_list = [tuple(label) for label in multilabel_list]
-        mlb = MultiLabelBinarizer()
-        mlb.fit(multilabel_list)
-        return mlb
+class Save:
+    def __init__(self, save_name, total_epoch, train_, val_):
+        self.SAVE_FOLDER = f'./{save_name}'
+        os.makedirs(self.SAVE_FOLDER, exist_ok=True)
+        self.TOTAL_EPOCH = total_epoch
+        self.TRAIN = train_
+        self.VAL = val_
 
-    def returnOneHotMultiLabel(self, idx):
-        label = [self.df.iloc[idx,1]]
-        result = np.ndarray.flatten(self.MLB.transform(label))
-        result = np.array(result, dtype='float').flatten()
-        return result
+    def DataFrame(self):
+        path_g = os.path.join(self.SAVE_FOLDER, 'g_loss_acc.csv')
+        path_l = os.path.join(self.SAVE_FOLDER, 'l_loss_acc.csv')
+        path_f = os.path.join(self.SAVE_FOLDER, 'f_loss_acc.csv')
+        df_g = pd.DataFrame({'epoch': list(range(self.TOTAL_EPOCH)), 'train_loss': self.TRAIN.G_AVG_LOSS, 'train_acc': self.TRAIN.G_AVG_ACC,
+                   'val_loss': self.VAL.G_AVG_LOSS, 'val_acc': self.VAL.G_AVG_LOSS},
+                  columns=['epoch', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
+        df_l = pd.DataFrame({'epoch': list(range(self.TOTAL_EPOCH)), 'train_loss': self.TRAIN.L_AVG_LOSS, 'train_acc': self.TRAIN.L_AVG_ACC,
+                   'val_loss': self.VAL.L_AVG_LOSS, 'val_acc': self.VAL.L_AVG_LOSS},
+                  columns=['epoch', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
+        df_f = pd.DataFrame({'epoch': list(range(self.TOTAL_EPOCH)), 'train_loss': self.TRAIN.F_AVG_LOSS, 'train_acc': self.TRAIN.F_AVG_ACC,
+                   'val_loss': self.VAL.F_AVG_LOSS, 'val_acc': self.VAL.F_AVG_LOSS},
+                  columns=['epoch', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
+        df_g.to_csv(path_g, index=False, encoding='euc-kr')
+        df_l.to_csv(path_l, index=False, encoding='euc-kr')
+        df_f.to_csv(path_f, index=False, encoding='euc-kr')
 
-    def __len__(self):
-        return len(self.df)
+    def LossImg(self):
+        path_g = os.path.join(self.SAVE_FOLDER, 'g_loss.png')
+        path_l = os.path.join(self.SAVE_FOLDER, 'l_loss.png')
+        path_f = os.path.join(self.SAVE_FOLDER, 'f_loss.png')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.TRAIN.G_AVG_LOSS, 'b', label='Training Loss')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.VAL.G_AVG_LOSS, 'r', label='Validation Loss')
+        plt.title('Training and validation loss')
+        plt.legend()
+        plt.savefig(path_g)
+        plt.cla()
 
-    def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.TRAIN.L_AVG_LOSS, 'b', label='Training Loss')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.VAL.L_AVG_LOSS, 'r', label='Validation Loss')
+        plt.title('Training and validation loss')
+        plt.legend()
+        plt.savefig(path_l)
+        plt.cla()
 
-        img_name = os.path.join(self.root_dir,
-                                self.df.iloc[idx, 0])
-        image = io.imread(img_name)
-        # image = np.array(image, dtype='float') / 255.0 #0.~1. 사이의 값으로 Normalizing
-        label = self.returnOneHotMultiLabel(idx)
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.TRAIN.F_AVG_LOSS, 'b', label='Training Loss')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.VAL.F_AVG_LOSS, 'r', label='Validation Loss')
+        plt.title('Training and validation loss')
+        plt.legend()
+        plt.savefig(path_f)
+        plt.cla()
 
-        sample = {'image': image, 'label': label}
+    def AccImg(self):
+        path_g = os.path.join(self.SAVE_FOLDER, 'g_accuracy.png')
+        path_l = os.path.join(self.SAVE_FOLDER, 'l_accuracy.png')
+        path_f = os.path.join(self.SAVE_FOLDER, 'f_accuracy.png')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.TRAIN.G_AVG_ACC, 'b', label='Training Accuracy')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.VAL.G_AVG_ACC, 'r', label='Validation Accuracy')
+        plt.title('Training and validation accuracy')
+        plt.legend()
+        plt.savefig(path_g)
+        plt.cla()
 
-        if self.transform:
-            sample = self.transform(sample)
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.TRAIN.L_AVG_ACC, 'b', label='Training Accuracy')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.VAL.L_AVG_ACC, 'r', label='Validation Accuracy')
+        plt.title('Training and validation accuracy')
+        plt.legend()
+        plt.savefig(path_l)
+        plt.cla()
 
-        return sample
-
-class Rescale(object):
-    """주어진 사이즈로 샘플크기를 조정합니다.
-
-    Args:
-        output_size(tuple or int) : 원하는 사이즈 값
-            tuple인 경우 해당 tuple(output_size)이 결과물(output)의 크기가 되고,
-            int라면 비율을 유지하면서, 길이가 작은 쪽이 output_size가 됩니다.
-    """
-
-    def __init__(self, output_size):
-        assert isinstance(output_size, (int, tuple))
-        self.output_size = output_size
-
-    def __call__(self, sample):
-        image, label = sample['image'], sample['label']
-
-        h, w = image.shape[:2]
-        if isinstance(self.output_size, int):
-            if h > w:
-                new_h, new_w = self.output_size * h / w, self.output_size
-            else:
-                new_h, new_w = self.output_size, self.output_size * w / h
-        else:
-            new_h, new_w = self.output_size
-
-        new_h, new_w = int(new_h), int(new_w)
-
-        img = transform.resize(image, (new_h, new_w))
-
-        return {'image': img, 'label': label}
-
-
-class RandomCrop(object):
-    """샘플데이터를 무작위로 자릅니다.
-
-    Args:
-        output_size (tuple or int): 줄이고자 하는 크기입니다.
-                        int라면, 정사각형으로 나올 것 입니다.
-    """
-
-    def __init__(self, output_size):
-        assert isinstance(output_size, (int, tuple))
-        if isinstance(output_size, int):
-            self.output_size = (output_size, output_size)
-        else:
-            assert len(output_size) == 2
-            self.output_size = output_size
-
-    def __call__(self, sample):
-        image, label = sample['image'], sample['label']
-
-        h, w = image.shape[:2]
-        new_h, new_w = self.output_size
-
-        top = np.random.randint(0, h - new_h)
-        left = np.random.randint(0, w - new_w)
-
-        image = image[top: top + new_h,
-                      left: left + new_w]
-
-        return {'image': image, 'label': label}
-
-
-class ToTensor(object):
-    """numpy array를 tensor(torch)로 변환 시켜줍니다."""
-
-    def __call__(self, sample):
-        image, label = sample['image'], sample['label']
-
-        # swap color axis because
-        # numpy image: H x W x C
-        # torch image: C X H X W
-        image = image.transpose((2, 0, 1))
-        return {'image': torch.from_numpy(image),
-                'label': torch.from_numpy(label)}
-
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.TRAIN.F_AVG_ACC, 'b', label='Training Accuracy')
+        plt.plot(list(range(self.TOTAL_EPOCH)), self.VAL.F_AVG_ACC, 'r', label='Validation Accuracy')
+        plt.title('Training and validation accuracy')
+        plt.legend()
+        plt.savefig(path_f)
+        plt.cla()
