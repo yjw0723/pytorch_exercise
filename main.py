@@ -4,14 +4,14 @@ from train_validation import *
 import warnings
 warnings.filterwarnings("ignore")
 
-CSV_PATH = 'E:/data/4667_7773_bundle_archive/sample/sample_labels.csv'
-IMG_DIR = 'E:/data/4667_7773_bundle_archive/sample/images_512_resized'
-SAVE_NAME = 'FASHION_GlobalNet'
+CSV_PATH = 'E:/data/multi-label_classification_PLANET/labels.csv'
+IMG_DIR = 'E:/data/multi-label_classification_PLANET/imgs_resized'
+SAVE_NAME = 'PLANET_attention_lr_0_0005'
 TOTAL_EPOCH = 100
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 TRAIN_RATIO = 0.7
 LR = 0.0005
-DISCRIMINATOR = '|'
+DISCRIMINATOR = ' '
 device = torch.device("cuda")
 
 dataloader = returnDataLoader(csv_path=CSV_PATH,
@@ -29,8 +29,6 @@ save = Save(save_name=SAVE_NAME,
             total_epoch=TOTAL_EPOCH,
             train_=train_,
             val_=val_)
-
-model = GlobalNet(class_length=len(dataloader.MLB.classes_))
 
 train_and_val = TrainAndValidation(save=save,
                                    train_=train_,

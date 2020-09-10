@@ -1,41 +1,17 @@
-from pytorch_ops import *
-from data_loader import *
-from train_validation import *
-import warnings
-warnings.filterwarnings("ignore")
+from PIL import Image
+import cv2, os
+from tqdm import tqdm
 
-CSV_PATH = 'D:/data/multi-label_classification_FASHION/labels.csv'
-IMG_DIR = 'D:/data/multi-label_classification_FASHION/imgs_resized'
-SAVE_NAME = 'FASHION_GlobalNet'
-TOTAL_EPOCH = 100
-BATCH_SIZE = 128
-TRAIN_RATIO = 0.7
-LR = 0.0005
-DISCRIMINATOR = '_'
-device = torch.device("cuda")
-
-dataloader = returnDataLoader(csv_path=CSV_PATH,
-                              train_ratio=TRAIN_RATIO,
-                              img_dir=IMG_DIR,
-                              discriminator=DISCRIMINATOR)
-
-train_ = returnLossAndAcc(dataset=dataloader.TRAIN_DATASET,
-                          batch_size=BATCH_SIZE)
-val_ = returnLossAndAcc(dataset=dataloader.VAL_DATASET,
-                        batch_size=BATCH_SIZE,
-                        shuffle=False)
-
-save = Save(save_name=SAVE_NAME,
-            total_epoch=TOTAL_EPOCH,
-            train_=train_,
-            val_=val_)
-
-model = GlobalNet(class_length=len(dataloader.MLB.classes_))
-
-train_and_val = TrainAndValidation(save=save,
-                                   train_=train_,
-                                   val_=val_,
-                                   class_length=len(dataloader.MLB.classes_),
-                                   learning_rate=LR,
-                                   total_epoch=TOTAL_EPOCH)
-train_and_val.execute()
+root_dir = 'E:/data/multi-label_classification_Xray'
+folder_list = os.listdir(root_dir)[4:16]
+save_dir = 'E:/data/multi-label_classification_Xray/resized_imgs'
+os.makedirs(save_dir, exist_ok=True)
+for folder in folder_list:
+    folder_path = os.path.join(root_dir, folder, 'images')
+    file_list = os.listdir(folder_path)
+    for filename in tqdm(file_list):
+        path = os.path.join(folder_path, filename)
+        save_path = os.path.join(save_dir, filename)
+        img = Image.open(path)
+        img = img.resize((512,512), Image.ANTIALIAS)
+        img.save(save_path)

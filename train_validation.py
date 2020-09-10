@@ -97,8 +97,8 @@ class TrainAndValidation:
             print('-------------------TRAIN STARTED-------------------')
             g_loss_list, l_loss_list, f_loss_list = [], [], []
             g_accuracy, l_accuracy, f_accuracy = 0, 0, 0
+            for i, data in enumerate(self.TRAIN_EXECUTE.DATA_LOADER, 0):
 
-            for i, data in enumerate(self.TRAIN_EXECUTE.DATA_LOADER):
                 inputs, labels, weight_p, weight_n = self.importData(data)
 
                 outputs, g_poolings, heatmaps, loss= self.returnGlobalModelOutput(inputs, labels, weight_p, weight_n)
@@ -131,16 +131,16 @@ class TrainAndValidation:
             print('-------------------VALIDATION STARTED-------------------')
             g_loss_list, l_loss_list, f_loss_list = [], [], []
             g_accuracy, l_accuracy, f_accuracy = 0, 0, 0
-            for i, data in enumerate(self.VAL_EXECUTE.DATA_LOADER):
+            for i, data in enumerate(self.VAL_EXECUTE.DATA_LOADER, 0):
                 inputs, labels, weight_p, weight_n = self.importData(data)
 
                 outputs, g_poolings, heatmaps, loss = self.returnGlobalModelOutput(inputs, labels, weight_p, weight_n)
-                self.TRAIN_EXECUTE.appendLoss(i, g_loss_list, loss, 'G')
+                self.VAL_EXECUTE.appendLoss(i, g_loss_list, loss, 'G')
                 g_accuracy = self.TRAIN_EXECUTE.returnAcc(outputs, labels, g_accuracy)
 
                 outputs, loss, l_poolings = self.returnLocalModelOutput(heatmaps, labels, weight_p, weight_n)
-                self.TRAIN_EXECUTE.appendLoss(i, l_loss_list, loss, 'L')
-                l_accuracy = self.TRAIN_EXECUTE.returnAcc(outputs, labels, l_accuracy)
+                self.VAL_EXECUTE.appendLoss(i, l_loss_list, loss, 'L')
+                l_accuracy = self.VAL_EXECUTE.returnAcc(outputs, labels, l_accuracy)
 
                 g_ = g_poolings.detach().cpu().numpy()
                 g_ = torch.from_numpy(g_).float().cuda()
@@ -148,8 +148,8 @@ class TrainAndValidation:
                 l_ = torch.from_numpy(l_).float().cuda()
                 concated_poolings = torch.cat((g_, l_), dim=1)
                 outputs, loss = self.returnFusionModelOutput(concated_poolings, labels, weight_p, weight_n)
-                self.TRAIN_EXECUTE.appendLoss(i, f_loss_list, loss, 'F')
-                f_accuracy = self.TRAIN_EXECUTE.returnAcc(outputs, labels, f_accuracy)
+                self.VAL_EXECUTE.appendLoss(i, f_loss_list, loss, 'F')
+                f_accuracy = self.VAL_EXECUTE.returnAcc(outputs, labels, f_accuracy)
 
             self.appendAvgLoss(self.VAL_EXECUTE.G_AVG_LOSS, g_loss_list)
             self.appendAvgLoss(self.VAL_EXECUTE.L_AVG_LOSS, l_loss_list)

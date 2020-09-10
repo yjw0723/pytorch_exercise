@@ -60,7 +60,6 @@ class readDataset(Dataset):
         self.MLB = mlb
         self.updateDf()
 
-
     def updateDf(self):
         label_list = self.df.iloc[:, 1].tolist()
         label_list = [tuple(label.split(self.discriminator)) for label in label_list]
