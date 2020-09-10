@@ -17,15 +17,17 @@ import warnings
 warnings.filterwarnings("ignore")
 
 class devideDataset:
-    def __init__(self, csv_path, train_ratio):
+    def __init__(self, csv_path, train_ratio, disciriminator):
         """
         Args:
             :param csv_path: label정보가 있는 csv 파일의 경로(string)
             :param train_ratio: 전체 데이터 셋 중에서 학습 데이터가 차지할 비중(float(ex:0.7))
+            :param train_ratio: multi-label 구분자(string(ex: - , / |)
         """
         self.df = pd.read_csv(csv_path, engine='python')
         self.df = self.df.sample(frac=1).reset_index(drop=True)
         self.train_ratio = train_ratio
+        self.discriminator = disciriminator
         self.devide()
 
     def devide(self):
@@ -34,10 +36,18 @@ class devideDataset:
         self.train_df = self.df.iloc[:train_length,:]
         self.test_df = self.df.iloc[train_length:,:]
 
+    def returnMLB(self):
+        label_list = self.df.iloc[:, 1].tolist()
+        label_list = np.unique(np.array(label_list))
+        multilabel_list = [label.split(self.discriminator) for label in label_list]
+        multilabel_list = [tuple(label) for label in multilabel_list]
+        mlb = MultiLabelBinarizer()
+        mlb.fit(multilabel_list)
+        return mlb
 
 
 class readDataset(Dataset):
-    def __init__(self, data, img_dir, disciriminator, transform=None):
+    def __init__(self, data, img_dir, mlb, discriminator, transform=None):
         """
         Args:
             data (string): pandas dataframe
@@ -48,8 +58,8 @@ class readDataset(Dataset):
         self.df = data
         self.root_dir = img_dir
         self.transform = transform
-        self.discriminator = disciriminator
-        self.MLB = self.returnMLB()
+        self.discriminator = discriminator
+        self.MLB = mlb
         self.updateDf()
 
 
@@ -83,18 +93,8 @@ class readDataset(Dataset):
         self.df['weight_n'] = W_N
         self.df.columns = ['FILENAME', 'LABEL', 'onehot', 'weight_p', 'weight_n']
 
-    def returnMLB(self):
-        label_list = self.df.iloc[:, 1].tolist()
-        label_list = np.unique(np.array(label_list))
-        multilabel_list = [label.split(self.discriminator) for label in label_list]
-        multilabel_list = [tuple(label) for label in multilabel_list]
-        mlb = MultiLabelBinarizer()
-        mlb.fit(multilabel_list)
-        return mlb
-
     def returnP(self):
-        label_list = self.df.iloc[:, 1].tolist()
-        P = np.zeros(len(np.unique(np.array(label_list))))
+        P = np.zeros(len(self.MLB.classes_))
         label_list = self.df.iloc[:, 1].tolist()
         for i, label in enumerate(label_list):
             label = [self.df.iloc[i,1]]

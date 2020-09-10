@@ -2,8 +2,8 @@ import os, cv2
 from tqdm import tqdm
 from skimage import io, transform
 
-dir = 'E:/data/multi-label_classification_FASHION/imgs'
-save_dir = 'E:/data/multi-label_classification_FASHION/imgs_resized'
+dir = 'E:/data/multi-label_classification_PLANET/imgs'
+save_dir = 'E:/data/multi-label_classification_PLANET/imgs_resized'
 os.makedirs(save_dir, exist_ok=True)
 filenames = os.listdir(dir)
 

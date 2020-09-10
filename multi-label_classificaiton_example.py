@@ -6,24 +6,28 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt #모형 학습시 accuracy와 loss를 저장하기 위한 라이브러리입니다.
 import torch.backends.cudnn as cudnn
 
-CSV_PATH = 'E:/data/multi-label_classification_FASHION/labels.csv'
-IMG_DIR = 'E:/data/multi-label_classification_FASHION/imgs_resized'
-SAVE_NAME = 'WBCEloss_only_resize_10'
-TOTAL_EPOCH = 10
+CSV_PATH = 'E:/data/viennacode_img_19600101_20191231_unique_preprocessed/labels.csv'
+IMG_DIR = 'E:/data/viennacode_img_19600101_20191231_unique_preprocessed/imgs'
+SAVE_NAME = 'TRADEMARK_WBCEloss_only_resize_100_lr_0_01'
+TOTAL_EPOCH = 100
 device = torch.device("cuda")
 
-dataset = devideDataset(csv_path = CSV_PATH, train_ratio=0.7)
+dataset = devideDataset(csv_path = CSV_PATH, train_ratio=0.7, disciriminator='|')
 train_df = dataset.train_df
 test_df = dataset.test_df
+mlb = dataset.returnMLB()
+CLASS_LENGTH = len(mlb.classes_)
 
 train_dataset = readDataset(data=train_df,
                             img_dir=IMG_DIR,
-                            disciriminator='_',
+                            mlb = mlb,
+                            discriminator='|',
                             transform=transforms.Compose([
                                            ToTensor()]))
 test_dataset = readDataset(data=test_df,
                            img_dir=IMG_DIR,
-                           disciriminator='_',
+                           mlb = mlb,
+                           discriminator=' ',
                            transform=transforms.Compose([
                                            ToTensor()]))
 
@@ -40,18 +44,18 @@ for param in model.parameters():
 model.fc = nn.Sequential(nn.Linear(2048, 512),
                          nn.ReLU(),
                          nn.Dropout(0.2),
-                         nn.Linear(512, 6))
+                         nn.Linear(512, CLASS_LENGTH))
 criterion = WBCEloss
 optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
 model.cuda()
 m = nn.Sigmoid()
-
 
 train_avg_loss = []
 train_avg_acc = []
 test_avg_loss = []
 test_avg_acc = []
 
+print('TRAIN START')
 for epoch in range(TOTAL_EPOCH):
     with torch.autograd.detect_anomaly():
         loss_list = []
@@ -122,7 +126,7 @@ for epoch in range(TOTAL_EPOCH):
         test_avg_acc.append(accuracy / TEST_DATA_LENGTH)
         print(f'EPOCH:{epoch}/{TOTAL_EPOCH}|Test Average Loss:{np.mean(loss_list)}|Test Accuracy:{accuracy/TEST_DATA_LENGTH}')
 
-PATH = f'./fashion_multilabel_classification_with_{SAVE_NAME}.pth'
+PATH = f'./{SAVE_NAME}.pth'
 torch.save(model.state_dict(), PATH)
 
 df = pd.DataFrame({'epoch': list(range(TOTAL_EPOCH)), 'train_loss': train_avg_loss, 'train_acc':train_avg_acc,
