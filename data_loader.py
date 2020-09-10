@@ -5,6 +5,7 @@ from skimage import transform
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
 import cv2
+from tqdm import tqdm
 
 import torch
 from torch.utils.data import Dataset
@@ -18,6 +19,7 @@ class devideDataset:
             :param train_ratio: 전체 데이터 셋 중에서 학습 데이터가 차지할 비중(float(ex:0.7))
         """
         self.df = pd.read_csv(csv_path, engine='python')
+        self.df = self.df.iloc[:,0:2]
         self.df = self.df.sample(frac=1).reset_index(drop=True)
         self.train_ratio = train_ratio
         self.devide()
@@ -67,7 +69,8 @@ class readDataset(Dataset):
         P = self.returnP()
         W_P = []
         W_N = []
-        for label in label_list:
+        print('Calculating positive weights and negative weights')
+        for label in tqdm(label_list):
             onehot = np.ndarray.flatten(self.MLB.transform([label]))
             onehot_list.append(onehot)
             w_p = []
@@ -91,8 +94,9 @@ class readDataset(Dataset):
 
     def returnP(self):
         label_list = self.df.iloc[:, 1].tolist()
-        P = np.zeros(len(np.unique(np.array(label_list))))
-        for i, label in enumerate(label_list):
+        P = np.zeros(len(self.MLB.classes_))
+        print('Calculationg P')
+        for i, label in enumerate(tqdm(label_list)):
             label = [self.df.iloc[i,1]]
             result = np.ndarray.flatten(self.MLB.transform(label))
             P = P+result
