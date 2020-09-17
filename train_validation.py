@@ -69,27 +69,58 @@ class TrainAndValidation:
         loss.backward(retain_graph=True)
         optimizer.step()
 
-    def appendAvgLoss(self,avg_loss, train_loss):
-        avg_loss.append(np.mean(train_loss))
+    def appendAvgLoss(self,avg_loss, loss):
+        avg_loss.append(np.mean(loss))
 
     def appendAvgAcc(self, data_length, avg_accuracy, accuracy):
         avg_accuracy.append(accuracy / data_length)
 
-    def saveBestModel(self, accuracy, avg_acc, model_name='G'):
+    def saveBestModelWithAccuracy(self, accuracy, avg_acc, model_name='G'):
         if len(avg_acc) > 0:
-            if max(avg_acc) <= accuracy / self.VAL_EXECUTE.DATA_LENGTH:
-                print(f'Validation accuracy is improved:{max(avg_acc)} to {accuracy / self.VAL_EXECUTE.DATA_LENGTH}')
+            if max(avg_acc) < accuracy / self.VAL_EXECUTE.DATA_LENGTH:
                 if model_name == 'G':
+                    print(f'Validation G_accuracy is improved:{max(avg_acc)} to {accuracy / self.VAL_EXECUTE.DATA_LENGTH}')
                     path = os.path.join(self.SAVE.SAVE_FOLDER, 'g_model.pth')
                     torch.save(self.G_MODEL.state_dict(), path)
                 elif model_name == 'L':
+                    print(f'Validation L_accuracy is improved:{max(avg_acc)} to {accuracy / self.VAL_EXECUTE.DATA_LENGTH}')
                     path = os.path.join(self.SAVE.SAVE_FOLDER, 'l_model.pth')
                     torch.save(self.L_MODEL.state_dict(), path)
                 else:
+                    print(f'Validation F_accuracy is improved:{max(avg_acc)} to {accuracy / self.VAL_EXECUTE.DATA_LENGTH}')
                     path = os.path.join(self.SAVE.SAVE_FOLDER, 'f_model.pth')
                     torch.save(self.F_MODEL.state_dict(), path)
             else:
-                print('Validation accuracy is not improved')
+                if model_name == 'G':
+                    print(f'Validation G_accuracy is not improved(G_accuracy:{max(avg_acc)})')
+                elif model_name == 'L':
+                    print(f'Validation L_accuracy is not improved(G_accuracy:{max(avg_acc)})')
+                else:
+                    print(f'Validation F_accuracy is not improved(G_accuracy:{max(avg_acc)})')
+
+    def saveBestModelWithLoss(self, loss_list, avg_loss, model_name='G'):
+        if len(avg_loss) > 0:
+            if min(avg_loss) > np.mean(loss_list):
+                if model_name == 'G':
+                    print(f'Validation G_loss is improved:{min(avg_loss)} to {np.mean(loss_list)}')
+                    path = os.path.join(self.SAVE.SAVE_FOLDER, 'g_model.pth')
+                    torch.save(self.G_MODEL.state_dict(), path)
+                elif model_name == 'L':
+                    print(f'Validation L_loss is improved:{min(avg_loss)} to {np.mean(loss_list)}')
+                    path = os.path.join(self.SAVE.SAVE_FOLDER, 'l_model.pth')
+                    torch.save(self.L_MODEL.state_dict(), path)
+                else:
+                    print(f'Validation F_loss is improved:{min(avg_loss)} to {np.mean(loss_list)}')
+                    path = os.path.join(self.SAVE.SAVE_FOLDER, 'f_model.pth')
+                    torch.save(self.F_MODEL.state_dict(), path)
+            else:
+                if model_name == 'G':
+                    print(f'Validation accuracy is not improved(G_loss:{np.mean(loss_list)})')
+                elif model_name == 'L':
+                    print(f'Validation accuracy is not improved(L_loss:{np.mean(loss_list)})')
+                else:
+                    print(f'Validation accuracy is not improved(F_loss:{np.mean(loss_list)})')
+
 
     def execute(self):
         for epoch in range(self.TOTAL_EPOCH):
@@ -98,7 +129,6 @@ class TrainAndValidation:
             g_loss_list, l_loss_list, f_loss_list = [], [], []
             g_accuracy, l_accuracy, f_accuracy = 0, 0, 0
             for i, data in enumerate(self.TRAIN_EXECUTE.DATA_LOADER, 0):
-
                 inputs, labels, weight_p, weight_n = self.importData(data)
 
                 outputs, g_poolings, heatmaps, loss= self.returnGlobalModelOutput(inputs, labels, weight_p, weight_n)
@@ -151,12 +181,12 @@ class TrainAndValidation:
                 self.VAL_EXECUTE.appendLoss(i, f_loss_list, loss, 'F')
                 f_accuracy = self.VAL_EXECUTE.returnAcc(outputs, labels, f_accuracy)
 
+            self.saveBestModelWithLoss(g_loss_list, self.VAL_EXECUTE.G_AVG_LOSS, model_name='G')
+            self.saveBestModelWithLoss(l_loss_list, self.VAL_EXECUTE.L_AVG_LOSS, model_name='L')
+            self.saveBestModelWithLoss(f_loss_list, self.VAL_EXECUTE.F_AVG_LOSS, model_name='F')
             self.appendAvgLoss(self.VAL_EXECUTE.G_AVG_LOSS, g_loss_list)
             self.appendAvgLoss(self.VAL_EXECUTE.L_AVG_LOSS, l_loss_list)
             self.appendAvgLoss(self.VAL_EXECUTE.F_AVG_LOSS, f_loss_list)
-            self.saveBestModel(g_accuracy, self.VAL_EXECUTE.G_AVG_ACC, model_name='G')
-            self.saveBestModel(l_accuracy, self.VAL_EXECUTE.L_AVG_ACC, model_name='L')
-            self.saveBestModel(f_accuracy, self.VAL_EXECUTE.F_AVG_ACC, model_name='F')
             self.appendAvgAcc(self.VAL_EXECUTE.DATA_LENGTH, self.VAL_EXECUTE.G_AVG_ACC, g_accuracy)
             self.appendAvgAcc(self.VAL_EXECUTE.DATA_LENGTH, self.VAL_EXECUTE.L_AVG_ACC, l_accuracy)
             self.appendAvgAcc(self.VAL_EXECUTE.DATA_LENGTH, self.VAL_EXECUTE.F_AVG_ACC, f_accuracy)

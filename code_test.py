@@ -1,17 +1,36 @@
-from PIL import Image
-import cv2, os
-from tqdm import tqdm
+from roc import *
 
-root_dir = 'E:/data/multi-label_classification_Xray'
-folder_list = os.listdir(root_dir)[4:16]
-save_dir = 'E:/data/multi-label_classification_Xray/resized_imgs'
-os.makedirs(save_dir, exist_ok=True)
-for folder in folder_list:
-    folder_path = os.path.join(root_dir, folder, 'images')
-    file_list = os.listdir(folder_path)
-    for filename in tqdm(file_list):
-        path = os.path.join(folder_path, filename)
-        save_path = os.path.join(save_dir, filename)
-        img = Image.open(path)
-        img = img.resize((512,512), Image.ANTIALIAS)
-        img.save(save_path)
+TOTAL_CSV_DIR = 'E:/data/multi-label_classification_PLANET/labels.csv'
+TEST_CSV_DIR = 'E:/data/multi-label_classification_PLANET/test_labels.csv'
+IMG_DIR = 'E:/data/multi-label_classification_PLANET/imgs_resized'
+MODEL_DIR = './PLANET_AG_CNN'
+SAVE_DIR = './PLANET_AG_CNN_ROC'
+DISCRIMINATOR = ' '
+BATCH_SIZE = 128
+
+get_model_outputs = getModelOutputs(total_csv_dir=TOTAL_CSV_DIR,
+                                    test_csv_dir=TEST_CSV_DIR,
+                                    img_dir=IMG_DIR,
+                                    model_dir=MODEL_DIR,
+                                    discriminator=DISCRIMINATOR,
+                                    batch_size=BATCH_SIZE)
+
+if not os.path.exists(get_model_outputs.g_save_path):
+    get_model_outputs.getOutputs()
+    onehot_labels = get_model_outputs.onehot_label_df
+    g_results = get_model_outputs.g_df
+    l_results = get_model_outputs.l_df
+    f_results = get_model_outputs.f_df
+else:
+    onehot_labels = pd.read_csv(get_model_outputs.label_save_path)
+    g_results = pd.read_csv(get_model_outputs.g_save_path)
+    l_results = pd.read_csv(get_model_outputs.l_save_path)
+    f_results = pd.read_csv(get_model_outputs.f_save_path)
+
+evaluation = Evaluation(onehot_df=onehot_labels,
+                        g_df=g_results,
+                        l_df=l_results,
+                        f_df=f_results,
+                        mlb=get_model_outputs.MLB,
+                        save_dir=SAVE_DIR)
+evaluation.execute()

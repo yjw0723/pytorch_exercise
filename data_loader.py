@@ -18,17 +18,35 @@ class devideDataset:
             :param csv_path: label정보가 있는 csv 파일의 경로(string)
             :param train_ratio: 전체 데이터 셋 중에서 학습 데이터가 차지할 비중(float(ex:0.7))
         """
-        self.df = pd.read_csv(csv_path, engine='python')
+        self.csv_path = csv_path
+        self.df = pd.read_csv(self.csv_path, engine='python')
         self.df = self.df.iloc[:,0:2]
         self.df = self.df.sample(frac=1).reset_index(drop=True)
         self.train_ratio = train_ratio
-        self.devide()
+        self.makePaths()
+        if not os.path.exists(self.train_csv_path):
+            self.devide()
+            self.save()
+
+    def makePaths(self):
+        total_csv_path = self.csv_path.split('/')
+        root_dir = '/'.join(total_csv_path[:len(total_csv_path)-1])
+        filename = total_csv_path[len(total_csv_path)-1]
+        train_filename = f'train_{filename}'
+        test_filename = f'test_{filename}'
+        self.train_csv_path = os.path.join(root_dir, train_filename)
+        self.test_csv_path = os.path.join(root_dir, test_filename)
 
     def devide(self):
         data_length = len(self.df.iloc[:,0])
         train_length = int(data_length * self.train_ratio)
         self.train_df = self.df.iloc[:train_length,:]
         self.test_df = self.df.iloc[train_length:,:]
+
+    def save(self):
+        self.train_df.to_csv(self.train_csv_path, index=False)
+        self.test_df.to_csv(self.test_csv_path, index=False)
+
 
 class returnMLB():
     def __init__(self, csv_path, discriminator):
@@ -45,15 +63,16 @@ class returnMLB():
         return mlb
 
 class readDataset(Dataset):
-    def __init__(self, data, img_dir, mlb, discriminator, transform=None):
+    def __init__(self, csv_path, img_dir, mlb, discriminator, transform=None):
         """
         Args:
-            data (string): pandas dataframe
+            data (string): label정보가 있는 csv 파일의 경로(string)
             img_dir (string): 모든 이미지가 존재하는 디렉토리 경로
             disciriminator: label의 구분자(만약 하나의 라벨이 'black_jeans'라면 discriminator는 '_'를 의미함)
             transform (callable, optional): 샘플에 적용될 Optional transform
         """
-        self.df = data
+        self.csv_path = csv_path
+        self.df = pd.read_csv(self.csv_path, engine='python')
         self.root_dir = img_dir
         self.transform = transform
         self.discriminator = discriminator
@@ -129,6 +148,57 @@ class readDataset(Dataset):
             sample = self.transform(sample)
 
         return sample
+
+class readTestDataset(Dataset):
+    def __init__(self, csv_path, img_dir, mlb, discriminator, transform=None):
+        """
+        Args:
+            data (string): label정보가 있는 csv 파일의 경로(string)
+            img_dir (string): 모든 이미지가 존재하는 디렉토리 경로
+            disciriminator: label의 구분자(만약 하나의 라벨이 'black_jeans'라면 discriminator는 '_'를 의미함)
+            transform (callable, optional): 샘플에 적용될 Optional transform
+        """
+        self.csv_path = csv_path
+        self.df = pd.read_csv(self.csv_path, engine='python')
+        self.root_dir = img_dir
+        self.transform = transform
+        self.discriminator = discriminator
+        self.MLB = mlb
+        self.updateDf()
+
+    def updateDf(self):
+        label_list = self.df.iloc[:, 1].tolist()
+        label_list = [tuple(label.split(self.discriminator)) for label in label_list]
+        self.df.iloc[:,1] = label_list
+        onehot_list = []
+        for label in tqdm(label_list):
+            onehot = np.ndarray.flatten(self.MLB.transform([label]))
+            onehot_list.append(onehot)
+
+        self.df['onehot'] = onehot_list
+        self.df.columns = ['FILENAME', 'LABEL', 'onehot']
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        img_name = os.path.join(self.root_dir,
+                                self.df.iloc[idx, 0])
+        image = cv2.imread(img_name)
+        image = np.array(image, dtype='float') / 255.0 #0.~1. 사이의 값으로 Normalizing
+        label = self.df.iloc[idx, 2]
+
+        sample = {'image': image, 'label': label}
+
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+
+
 
 class Rescale(object):
     """주어진 사이즈로 샘플크기를 조정합니다.
@@ -224,20 +294,34 @@ class ToTensor(object):
         image = image.transpose((2, 0, 1))
         return {'image': image, 'label': label, 'weight_p':weight_p, 'weight_n':weight_n}
 
+class testToTensor(object):
+    """numpy array를 tensor(torch)로 변환 시켜줍니다."""
+
+    def __call__(self, sample):
+        image, label = sample['image'], sample['label']
+
+        # swap color axis because
+        # numpy image: H x W x C
+        # torch image: C X H X W
+        image = image.transpose((2, 0, 1))
+        return {'image': image, 'label': label}
+
 
 class returnDataLoader:
     def __init__(self, csv_path, train_ratio, img_dir, discriminator):
         self.DATASET = devideDataset(csv_path, train_ratio)
+        self.TRAIN_CSV_PATH = self.DATASET.train_csv_path
+        self.TEST_CSV_PATH = self.DATASET.test_csv_path
         self.MLB = returnMLB(csv_path, discriminator).returnMLB()
-        self.TRAIN_DATASET = readDataset(self.DATASET.train_df,
+        self.TRAIN_DATASET = readDataset(self.TRAIN_CSV_PATH,
                                          img_dir,
                                          self.MLB,
                                          discriminator,
                                          transforms.Compose([ToTensor()]))
-        self.VAL_DATASET = readDataset(self.DATASET.test_df,
+        self.VAL_DATASET = readDataset(self.TEST_CSV_PATH,
                                        img_dir,
                                        self.MLB,
                                        discriminator,
                                        transforms.Compose([ToTensor()]))
-        self.TRAIN_DATA_LENGTH = len(self.DATASET.train_df.iloc[:,0])
-        self.VAL_DATA_LENGTH = len(self.DATASET.test_df.iloc[:,0])
+        self.TRAIN_DATA_LENGTH = len(self.TRAIN_DATASET.df.iloc[:,0])
+        self.VAL_DATA_LENGTH = len(self.VAL_DATASET.df.iloc[:,0])

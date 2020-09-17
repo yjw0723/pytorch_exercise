@@ -4,14 +4,15 @@ from train_validation import *
 import warnings
 warnings.filterwarnings("ignore")
 
-CSV_PATH = 'E:/data/multi-label_classification_PLANET/labels.csv'
-IMG_DIR = 'E:/data/multi-label_classification_PLANET/imgs_resized'
-SAVE_NAME = 'PLANET_attention_lr_0_0005'
+CSV_PATH = 'E:/data/viennacode_img_19600101_20191231_unique_preprocessed/labels_middle.csv'
+IMG_DIR = 'E:/data/viennacode_img_19600101_20191231_unique_preprocessed/imgs'
+SAVE_NAME = 'TRADEMARK_AG_CNN'
 TOTAL_EPOCH = 100
 BATCH_SIZE = 128
 TRAIN_RATIO = 0.7
 LR = 0.0005
-DISCRIMINATOR = ' '
+DISCRIMINATOR = '|'
+
 device = torch.device("cuda")
 
 dataloader = returnDataLoader(csv_path=CSV_PATH,
