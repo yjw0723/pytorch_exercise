@@ -4,9 +4,9 @@ from train_validation import *
 import warnings
 warnings.filterwarnings("ignore")
 
-CSV_PATH = 'E:/data/viennacode_img_19600101_20191231_unique_preprocessed/labels_middle.csv'
+CSV_PATH = 'E:/data/viennacode_img_19600101_20191231_unique_preprocessed/labels_small.csv'
 IMG_DIR = 'E:/data/viennacode_img_19600101_20191231_unique_preprocessed/imgs'
-SAVE_NAME = 'TRADEMARK_AG_CNN'
+SAVE_NAME = 'TRADEMARK_SMALL_AG_CNN'
 TOTAL_EPOCH = 100
 BATCH_SIZE = 128
 TRAIN_RATIO = 0.7

@@ -1,5 +1,6 @@
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
+import cv2
 
 from torch.utils.data import DataLoader
 
@@ -7,7 +8,7 @@ from data_loader import *
 from nets import *
 
 class getModelOutputs:
-    def __init__(self,total_csv_dir, test_csv_dir, img_dir, model_dir, discriminator, batch_size):
+    def __init__(self, total_csv_dir, test_csv_dir, img_dir, model_dir, save_dir, discriminator, batch_size):
         self.TOTAL_CSV_DIR = total_csv_dir
         self.TEST_CSV_DIR = test_csv_dir
         self.IMG_DIR = img_dir
@@ -17,6 +18,9 @@ class getModelOutputs:
         self.G_MODEL_DIR = os.path.join(self.MODEL_DIR, 'g_model.pth')
         self.L_MODEL_DIR = os.path.join(self.MODEL_DIR, 'l_model.pth')
         self.F_MODEL_DIR = os.path.join(self.MODEL_DIR, 'f_model.pth')
+        self.SAVE_DIR = save_dir
+        self.HEATMAP_DIR = os.path.join(save_dir, 'heatmaps')
+        os.makedirs(self.HEATMAP_DIR, exist_ok=True)
         self.label_save_path = os.path.join(self.MODEL_DIR, 'onehot_labels.csv')
         self.g_save_path = os.path.join(self.MODEL_DIR, 'g_results.csv')
         self.l_save_path = os.path.join(self.MODEL_DIR, 'l_results.csv')
@@ -77,6 +81,7 @@ class getModelOutputs:
                 g_results = g_outputs.detach().cpu().numpy()
                 l_results = l_outputs.detach().cpu().numpy()
                 f_results = f_outputs.detach().cpu().numpy()
+                self.saveHeatMap(heatmaps, labels)
             else:
                 onehot_labels = self.concatenateOutputs(onehot_labels, labels)
                 g_results = self.concatenateOutputs(g_results, g_outputs)
@@ -93,6 +98,29 @@ class getModelOutputs:
         self.g_df.to_csv(self.g_save_path, index=False)
         self.l_df.to_csv(self.l_save_path, index=False)
         self.f_df.to_csv(self.f_save_path, index=False)
+
+    def saveHeatMap(self, heatmaps, labels):
+        heatmaps = heatmaps.detach().cpu().numpy()
+        labels = labels.detach().cpu().numpy()
+        j = 0
+        for heatmap, label in zip(heatmaps, labels):
+            heatmap = np.transpose(heatmap, (1,2,0))
+            heatmap = heatmap * 255
+            heatmap = heatmap.astype(np.uint8)
+            label = [True if l == 1. else False for l in label]
+            filename = f'{j}_{"_".join(self.MLB.classes_[label])}.jpg'
+            save_path = os.path.join(self.HEATMAP_DIR, filename)
+            cv2.imwrite(save_path, heatmap)
+            j += 1
+
+    def saveHeatMaps(self):
+        for i, data in enumerate(tqdm(self.DATALOADER)):
+            inputs, labels = self.importData(data)
+            g_outputs, g_poolings, heatmaps = self.G_MODEL.gOutput(inputs)
+            if i == 0:
+                self.saveHeatMap(heatmaps, labels)
+
+
 
 class Evaluation:
     def __init__(self, onehot_df, g_df, l_df, f_df, mlb, save_dir):
